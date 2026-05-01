@@ -1,42 +1,59 @@
-# KOR B3 Engine Analysis Suite (TEKNOFEST 2026)
+## KOR B3 Engine Analysis Suite (TEKNOFEST 2026)
 
-This repository contains the computational analysis tools for the **KOR (Kinetic Open Research)** liquid rocket engine, developed for the TEKNOFEST B3 competition.
+This repository contains the integrated computational analysis tools for the KOR (Kinetic Open Research) liquid rocket engine. 
+Developed specifically for the TEKNOFEST B3 competition, the suite provides a "Digital Twin" for a 100N GOX/Isopar-H liquid engine.
 
 ## Overview
-The suite is designed for a **100N GOX/Isopar-H** liquid rocket engine, optimized for the **0.9 bar** atmospheric conditions of Aksaray.
 
-## Features
-- **Propellant CEA**: Automated sweeps for Isopar-H performance.
-- **Parametric Geometry**: Dynamic calculation of $D_t$, $D_e$, and $\epsilon$ based on target thrust.
-- **Thermal Analysis**: Bartz-equation based gas-side heat flux estimation.
-- **Dockerized Workflow**: Fully reproducible environment for engineering simulations.
+The suite is optimized for the 0.9 bar atmospheric conditions of Aksaray, ensuring optimal nozzle expansion and performance at the competition site.
+Features
 
-## How to Use
-### 1. Using Docker (Recommended)
-Pull the pre-configured environment:
-```bash
-docker pull allrider1127/liquid-rocket-b3-teknofest:v1
+    Integrated Propellant CEA: Automated sweeps for Isopar-H/GOX performance at specific mixture ratios.
+
+    Dynamic Geometry: Calculation of Dt​, De​, and ϵ based on a 100N thrust target.
+
+    Thermal Analysis: Bartz-equation based gas-side heat flux estimation to verify the integrity of the 100mm copper block.
+
+    Transient Priming Simulation: Calculates propellant travel times to ensure a Safe Oxidizer Lead.
+
+    Mechanical Safety Verification: Tie-rod structural analysis for the modular engine stack, ensuring high safety factors for high-pressure testing.
+
+    Dockerized Workflow: Fully reproducible environment for engineering simulations.
+
+# How to Use
+## 1. Using Docker (Recommended)
+
+Pull the pre-configured environment containing the latest solver and integrated scripts:
+```Bash
+
+docker pull allrider1127/liquid-rocket-b3-teknofest:latest
+
 ```
 
-Run the analysis:
-```bash
+Run the Master Performance Summary:
+```Bash
 
-docker compose run b3-analyzer python3 scripts/run_gox_isopar_h.py
+docker run -it allrider1127/liquid-rocket-b3-teknofest:latest python3 scripts/polvon_b3_master.py
 ```
 
-## 2. Manual Installation
+## 2. Core Scripts
 
-Ensure you have RocketCEA and math libraries installed, then run:
-Bash
+    run_gox_isopar_h.py: Core internal ballistics and CEA sweep.
 
-python3 scripts/run_gox_isopar_h.py
+    injector_priming.py: Start-up transient and priming delay analysis.
 
-## Design Point Summary
+    polvon_b3_master.py: Generates the Master Performance Summary Table for the technical report.
 
-   Thrust: 100N (Aksaray)
+    bolt_analysis.py: Structural safety verification for the tie-rod assembly.
 
-   Propellants: GOX / Isopar-H
+Design Point Summary
 
-   Chamber Pressure: 10 Bar
+    Thrust: 100N (Aksaray Ambient)
 
-   Exit Pressure: 0.9 Bar
+    Propellants: GOX / Isopar-H
+
+    Chamber Pressure: 10 Bar
+
+    Exit Pressure: 0.9 Bar
+
+    Optimal O/F: 2.2
