@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  b3-analyzer:
+    build: .
+    image: b3-teknofest-polvon:v1
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
