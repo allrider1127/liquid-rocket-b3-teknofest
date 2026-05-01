@@ -4,14 +4,14 @@ import math
 wdot_fuel = 0.016        # kg/s (Liquid Isopar H)
 wdot_gox = 0.034         # kg/s (Example GOX flow for O/F ~2.1)
 rho_fuel = 810           # kg/s^3
-rho_gox = 16.5           # kg/m^3 (At 12 bar / 20C - YOU MUST CHECK THIS)
+rho_gox = 25           # kg/m^3 (At 12 bar / 20C - YOU MUST CHECK THIS)
 target_tmr = 1.2         # Momentum balance target
 cd_liquid = 0.7          # Discharge coeff for pintle slot/holes
 cd_gas = 0.8             # Discharge coeff for annulus
 
 # Pressure Drops (from our previous sweep)
-dp_fuel_pa = 4.0 * 100000 
-dp_gox_pa = 2.0 * 100000  # Usually lower for gas to keep velocity sane
+dp_fuel_pa = 5.0 * 100000 
+dp_gox_pa = 3.0 * 100000  # Usually lower for gas to keep velocity sane
 
 # --- CALCULATIONS ---
 
@@ -43,3 +43,15 @@ print(f"Pintle Diameter (D_pt): {d_pt_mm} mm (Assumed)")
 print(f"Radial Slot Width (L_open): {l_open_m*1000:.3f} mm")
 print(f"Annular Gap Width (delta_ann): {delta_ann_m*1000:.3f} mm")
 print(f"Skip Length (L_skip): {l_open_m*1000*2:.2f} mm (Rule: 2x L_open)")
+# --- EXPORTS FOR SOLVER ---
+
+A_inj_f = area_fuel
+A_inj_ox = area_gox
+
+Cd_f = cd_liquid
+Cd_ox = cd_gas
+
+rho_f = rho_fuel
+rho_ox = rho_gox
+
+MR_design = wdot_gox / wdot_fuel

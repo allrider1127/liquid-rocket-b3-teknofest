@@ -1,4 +1,4 @@
-# Use python 3.10 slim as the base image
+# THIS LINE IS MANDATORY
 FROM python:3.10-slim
 
 # Install system dependencies for NASA CEA and RocketCEA
@@ -19,5 +19,8 @@ RUN pip install --no-cache-dir \
 # Set the working directory
 WORKDIR /app
 
-# By default, open a bash shell when we run the container
+# Copy EVERYTHING from your local project folder to the container
+COPY . .
+
+# By default, open a bash shell
 CMD ["/bin/bash"]

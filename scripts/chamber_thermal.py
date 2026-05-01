@@ -1,37 +1,49 @@
-kimport math
-# Importing results from your CEA sweep
-from run_gox_isopar_h import C, best_MR_vac, Pc, At_cm2 
+import math
+from run_gox_isopar_h import C, best_MR_amb, Pc, At_cm2
 
-# --- AUTOMATIC DATA EXTRACTION ---
-mr = best_MR_vac 
-
-# Extracting live performance data for the optimum Mixture Ratio
-# We use a fixed expansion ratio of 2.5 for the thermal check
+# --- 1. LIVE DATA EXTRACTION ---
+mr = best_MR_amb
+# Use the live results from your CEA sweep
 IspVac, Cstar_ms, Tc_K, mw, gamma = C.get_IvacCstrTc_ChmMwGam(Pc=Pc, MR=mr, eps=2.5)
 
-# --- CALCULATING DIAMETER FROM AREA ---
-# At_cm2 is the area in cm^2 from your CEA results
-Dt_cm = 2 * math.sqrt(At_cm2 / math.pi)
-Dt_m = Dt_cm / 100  # Convert to meters
+Dt_m = (2 * math.sqrt(At_cm2 / math.pi)) / 100  # Throat diameter in meters
+R_inner = Dt_m / 2
 
-# --- PHYSICAL CONSTANTS (Gas Properties at Throat) ---
-Pr = 0.71            # Prandtl number
-mu = 0.88e-4         # Viscosity (kg/m-s)
-Cp = 2300            # Specific heat (J/kg-K)
-
-# --- BARTZ EQUATION ---
-# hg = [0.026 / Dt^0.2] * [mu^0.2 * Cp / Pr^0.6] * (Pc_pa / Cstar)^0.8
+# --- 2. GAS PROPERTIES & BARTZ ---
+Pr = 0.71
+mu = 0.88e-4
+Cp = 2300
 Pc_pa = Pc * 1e5
+# Full Bartz Equation
 hg = (0.026 / (Dt_m**0.2)) * (mu**0.2 * Cp / (Pr**0.6)) * (Pc_pa / Cstar_ms)**0.8
 
-# --- HEAT FLUX CALCULATION ---
-Tw = 800  # Assumed inner wall temp in Kelvin
-q = hg * (Tc_K - Tw)
+# --- 3. THE COPPER BLOCK PHYSICS ---
+k_cu = 390.0        # OFHC Copper conductivity
+D_outer = 0.100     # Your 100mm block
+R_outer = D_outer / 2
+T_aw = Tc_K * 0.98   # Adiabatic wall temperature
+T_coolant = 300.0   # Bulk Isopar-H temp
 
-print(f"--- KOR B3 INTEGRATED THERMAL RESULTS ---")
-print(f"Fuel: Isopar-H | Optimum MR: {mr}")
-print(f"Combustion Temp (Tc): {Tc_K:.2f} K")
-print(f"C-Star: {Cstar_ms:.2f} m/s")
-print(f"Throat Diameter (Dt): {Dt_cm:.3f} cm")
-print(f"Gas-side hg: {hg:.2f} W/m^2-K")
-print(f"Throat Heat Flux (q): {q/1e6:.2f} MW/m^2")
+# Thermal Resistance logic for a cylinder:
+# We solve for Tw_inner by equating gas-side convection and wall conduction
+# q = hg * (T_aw - Tw_inner) = k_cu * (Tw_inner - Tw_outer) / (R_inner * ln(R_outer/R_inner))
+res_wall = (R_inner * math.log(R_outer / R_inner)) / k_cu
+Tw_inner = (hg * T_aw + (1/res_wall) * T_coolant) / (hg + (1/res_wall))
+q = hg * (T_aw - Tw_inner)
+Tw_outer = Tw_inner - (q * res_wall)
+
+# --- 4. OUTPUTS ---
+print(f"{'--- KOR B3 INTEGRATED THERMAL RESULTS ---':^50}")
+print(f"Propellants: GOX/Isopar-H | MR: {mr}")
+print(f"Chamber Temp (Tc): {Tc_K:.1f} K")
+print(f"Gas-side hg:       {hg:.2f} W/m^2-K")
+print(f"Peak Heat Flux:    {q/1e6:.2f} MW/m^2")
+print("-" * 50)
+print(f"Inner Wall Temp:   {Tw_inner:.1f} K")
+print(f"Outer Wall Temp:   {Tw_outer:.1f} K")
+print("-" * 50)
+
+if Tw_inner < 1000:
+    print("STATUS: SUCCESS - OFHC Copper structural integrity maintained.")
+if Tw_outer < 550:
+    print("STATUS: SUCCESS - Silver brazing / Regen channels safe.")

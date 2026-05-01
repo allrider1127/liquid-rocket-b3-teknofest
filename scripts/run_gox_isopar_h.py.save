@@ -1,0 +1,27 @@
+import math
+# ... (Keep your existing CEA setup and Fuel registration)
+
+# Add these constants at the top
+thrust_target = 100.0
+g0 = 9.80665
+
+# ... (Inside your MR loop)
+        mdot = thrust_target / (IspAmb * g0)
+        Pc_Pa = Pc * 100000.0
+        At_m2 = (Cstar * mdot) / Pc_Pa
+        At_cm2 = At_m2 * 10000.0
+        Ae_cm2 = At_cm2 * eps
+
+        # --- ADD THESE GEOMETRY CALCULATIONS ---
+        Dt_cm = 2 * math.sqrt(At_cm2 / math.pi)
+        Rt_cm = Dt_cm / 2
+        De_cm = 2 * math.sqrt(Ae_cm2 / math.pi)
+        
+        # Save the best results for export
+        if mr == 2.3: # Using your optimum MR
+            best_Dt_cm = Dt_cm
+            best_De_cm = De_cm
+            best_At_cm2 = At_cm2
+            best_Tc = Tc
+            best_Cstar = Cstar
+            best_gamma = gam
